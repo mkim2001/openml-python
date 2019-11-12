@@ -1634,6 +1634,23 @@ class SklearnExtension(Extension):
         if self._is_hpo_class(model_copy):
             trace_data = self._extract_trace_data(model_copy, rep_no, fold_no)
             trace = self._obtain_arff_trace(model_copy, trace_data)  # type: Optional[OpenMLRunTrace]  # noqa E501
+
+            user_defined_measures['wall_clock_time_millis_hpo'] = (
+                (
+                    + sum([trace_line.time for trace_line in trace])
+                ) * 1000
+            )
+            if hasattr(model_copy, 'refit_time_'):
+                user_defined_measures['wall_clock_time_millis_refit'] = (
+                    model_copy.refit_time_ * 1000
+                )
+                user_defined_measures['wall_clock_time_millis_hpo-refit'] = (
+                    (
+                        model_copy.refit_time_
+                        + sum([trace_line.time for trace_line in trace])
+                    ) * 1000
+                )
+
         else:
             trace = None
 
@@ -1869,7 +1886,11 @@ class SklearnExtension(Extension):
             if itt_no == model.best_index_:
                 selected = 'true'
             test_score = model.cv_results_['mean_test_score'][itt_no]
-            arff_line = [rep_no, fold_no, itt_no, test_score, selected]
+            time_ = (
+                model.cv_results_['mean_fit_time'][itt_no] * model.n_splits_
+                + model.cv_results_['mean_score_time'][itt_no] * model.n_splits_
+            )
+            arff_line = [rep_no, fold_no, itt_no, test_score, selected, time_]
             for key in model.cv_results_:
                 if key.startswith('param_'):
                     value = model.cv_results_[key][itt_no]
@@ -1914,7 +1935,8 @@ class SklearnExtension(Extension):
                             ('fold', 'NUMERIC'),
                             ('iteration', 'NUMERIC'),
                             ('evaluation', 'NUMERIC'),
-                            ('selected', ['true', 'false'])]
+                            ('selected', ['true', 'false']),
+                            ('time', 'NUMERIC')]
 
         # model dependent attributes for trace arff
         for key in model.cv_results_:

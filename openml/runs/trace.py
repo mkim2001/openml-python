@@ -15,6 +15,7 @@ REQUIRED_ATTRIBUTES = [
     'iteration',
     'evaluation',
     'selected',
+    'time',
 ]
 
 
@@ -173,6 +174,7 @@ class OpenMLRunTrace(object):
             ('iteration', 'NUMERIC'),
             ('evaluation', 'NUMERIC'),
             ('selected', ['true', 'false']),
+            ('time', 'NUMERIC'),
         ]
         trace_attributes.extend([
             (PREFIX + parameter, 'STRING') for parameter in
@@ -263,6 +265,7 @@ class OpenMLRunTrace(object):
             iteration = int(itt[attribute_idx['iteration']])
             evaluation = float(itt[attribute_idx['evaluation']])
             selected_value = itt[attribute_idx['selected']]
+            time_ = float(itt[attribute_idx['time']])
             if selected_value == 'true':
                 selected = True
             elif selected_value == 'false':
@@ -285,6 +288,7 @@ class OpenMLRunTrace(object):
                 setup_string=None,
                 evaluation=evaluation,
                 selected=selected,
+                time=time_,
                 parameters=parameters,
             )
             trace[(repeat, fold, iteration)] = current
@@ -328,6 +332,7 @@ class OpenMLRunTrace(object):
             setup_string = json.loads(itt['oml:setup_string'])
             evaluation = float(itt['oml:evaluation'])
             selected_value = itt['oml:selected']
+            time_ = float(itt['oml:time'])
             if selected_value == 'true':
                 selected = True
             elif selected_value == 'false':
@@ -345,6 +350,7 @@ class OpenMLRunTrace(object):
                 setup_string,
                 evaluation,
                 selected,
+                time_,
             )
             trace[(repeat, fold, iteration)] = current
 
@@ -410,7 +416,7 @@ class OpenMLTraceIteration(object):
     setup_string : str
         json string representing the parameters
 
-    evaluation : double
+    evaluation : float
         The evaluation that was awarded to this trace iteration.
         Measure is defined by the task
 
@@ -419,18 +425,22 @@ class OpenMLTraceIteration(object):
         selected for making predictions. Per fold/repeat there
         should be only one iteration selected
 
+    time : float
+        Duration of training and evaluating the model.
+
     parameters : OrderedDict
     """
 
     def __init__(
         self,
-        repeat,
-        fold,
-        iteration,
-        setup_string,
-        evaluation,
-        selected,
-        parameters=None,
+        repeat: int,
+        fold: int,
+        iteration: int,
+        setup_string: str,
+        evaluation: float,
+        selected: bool,
+        time: float,
+        parameters: OrderedDict = None,
     ):
 
         if not isinstance(selected, bool):
@@ -457,6 +467,7 @@ class OpenMLTraceIteration(object):
         self.setup_string = setup_string
         self.evaluation = evaluation
         self.selected = selected
+        self.time = time
         self.parameters = parameters
 
     def get_parameters(self):
