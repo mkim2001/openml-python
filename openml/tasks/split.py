@@ -21,7 +21,7 @@ class OpenMLSplit(object):
        split : dict
     """
 
-    def __init__(self, name, description, split):
+    def __init__(self, name, description, split) -> None:
         self.description = description
         self.name = name
         self.split = dict()
@@ -43,7 +43,7 @@ class OpenMLSplit(object):
         self.folds = len(self.split[0])
         self.samples = len(self.split[0][0])
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if (type(self) != type(other)
                 or self.name != other.name
                 or self.description != other.description
@@ -143,7 +143,7 @@ class OpenMLSplit(object):
 
         return cls(name, '', repetitions)
 
-    def from_dataset(self, X, Y, folds, repeats):
+    def from_dataset(self, X, Y, folds, repeats) -> None:
         raise NotImplementedError()
 
     def get(self, repeat=0, fold=0, sample=0):

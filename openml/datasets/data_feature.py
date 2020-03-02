@@ -1,5 +1,7 @@
 # License: BSD 3-Clause
 
+from typing import List
+
 
 class OpenMLDataFeature(object):
     """
@@ -19,8 +21,8 @@ class OpenMLDataFeature(object):
     """
     LEGAL_DATA_TYPES = ['nominal', 'numeric', 'string', 'date']
 
-    def __init__(self, index, name, data_type, nominal_values,
-                 number_missing_values):
+    def __init__(self, index: int, name: str, data_type: str, nominal_values: List[str],
+                 number_missing_values: int) -> None:
         if type(index) != int:
             raise ValueError('Index is of wrong datatype')
         if data_type not in self.LEGAL_DATA_TYPES:
@@ -45,8 +47,8 @@ class OpenMLDataFeature(object):
         self.nominal_values = nominal_values
         self.number_missing_values = number_missing_values
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "[%d - %s (%s)]" % (self.index, self.name, self.data_type)
 
-    def _repr_pretty_(self, pp, cycle):
+    def _repr_pretty_(self, pp: object) -> None:
         pp.text(str(self))
