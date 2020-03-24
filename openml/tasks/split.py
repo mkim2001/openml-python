@@ -1,6 +1,7 @@
 # License: BSD 3-Clause
 
 from collections import namedtuple, OrderedDict
+from typing import Dict
 import os
 import pickle
 
@@ -24,7 +25,7 @@ class OpenMLSplit(object):
     def __init__(self, name, description, split) -> None:
         self.description = description
         self.name = name
-        self.split = dict()
+        self.split = dict()  # type: Dict
 
         # Add splits according to repetition
         for repetition in split:

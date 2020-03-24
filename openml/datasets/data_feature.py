@@ -1,6 +1,6 @@
 # License: BSD 3-Clause
 
-from typing import List
+from typing import List, no_type_check
 
 
 class OpenMLDataFeature(object):
@@ -50,5 +50,7 @@ class OpenMLDataFeature(object):
     def __repr__(self) -> str:
         return "[%d - %s (%s)]" % (self.index, self.name, self.data_type)
 
-    def _repr_pretty_(self, pp: object) -> None:
+    @no_type_check
+    def _repr_pretty_(self, pp, cycle):
+        print(type(pp))
         pp.text(str(self))

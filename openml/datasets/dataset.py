@@ -7,7 +7,7 @@ import io
 import logging
 import os
 import pickle
-from typing import List, Optional, Union, Tuple, Iterable, Dict
+from typing import List, Optional, Union, Tuple, Iterable, Dict, Any
 
 import arff
 import numpy as np
@@ -100,18 +100,19 @@ class OpenMLDataset(OpenMLBase):
     dataset: string, optional
         Serialized arff dataset string.
     """
-    def __init__(self, name, description, format=None,
-                 data_format='arff', cache_format='pickle',
-                 dataset_id=None, version=None,
-                 creator=None, contributor=None, collection_date=None,
-                 upload_date=None, language=None, licence=None,
-                 url=None, default_target_attribute=None,
-                 row_id_attribute=None, ignore_attribute=None,
-                 version_label=None, citation=None, tag=None,
-                 visibility=None, original_data_url=None,
-                 paper_url=None, update_comment=None,
-                 md5_checksum=None, data_file=None, features=None,
-                 qualities=None, dataset=None):
+    def __init__(self, name: str, description: str, format: str = None,
+                 data_format: str = 'arff', cache_format: str = 'pickle',
+                 dataset_id: int = None, version: int = None, creator: str = None,
+                 contributor: str = None, collection_date: str = None, upload_date: str = None,
+                 language: str = None, licence: str = None, url: str = None,
+                 default_target_attribute: str = None, row_id_attribute: str = None,
+                 ignore_attribute: Union[str, List[str]] = None, version_label: str = None,
+                 citation: str = None, tag: str = None, visibility: str = None,
+                 original_data_url: str = None, paper_url: str = None,
+                 update_comment: str = None, md5_checksum: str = None,
+                 data_file: Optional[Union[bytes, str, os.PathLike[Any]]] = None,
+                 # features = None, qualities = None, dataset = None):
+                 features: dict = None, qualities: dict = None, dataset: str = None):
         if dataset_id is None:
             if description and not re.match("^[\x00-\x7F]*$", description):
                 # not basiclatin (XSD complains)
@@ -167,7 +168,7 @@ class OpenMLDataset(OpenMLBase):
         self.update_comment = update_comment
         self.md5_checksum = md5_checksum
         self.data_file = data_file
-        self.features = None
+        self.features = None  # type: Optional[Dict]
         self.qualities = None
         self._dataset = dataset
 
@@ -187,6 +188,9 @@ class OpenMLDataset(OpenMLBase):
 
         self.qualities = _check_qualities(qualities)
 
+        self.data_pickle_file = None  # type: Union[str, None]
+        self.data_feather_file = None  # type: Union[str, None]
+        self.feather_attribute_file = None  # type: Union[str, None]
         if data_file is not None:
             self.data_pickle_file, self.data_feather_file,\
                 self.feather_attribute_file = self._create_pickle_in_cache(data_file)
@@ -198,7 +202,7 @@ class OpenMLDataset(OpenMLBase):
     def id(self) -> Optional[int]:
         return self.dataset_id
 
-    def _get_repr_body_fields(self) -> List[Tuple[str, Union[str, int, List[str]]]]:
+    def _get_repr_body_fields(self) -> List[Tuple[str, Union[str, int, List[str], None]]]:
         """ Collect all information to display in the __repr__ body. """
         fields = {"Name": self.name,
                   "Version": self.version,
@@ -276,7 +280,7 @@ class OpenMLDataset(OpenMLBase):
         # headers of the corresponding .arff file!
         import struct
 
-        filename = self.data_file
+        filename = self.data_file  # type: Union[str, bytes, os.PathLike]
         bits = (8 * struct.calcsize("P"))
         # Files can be considered too large on a 32-bit system,
         # if it exceeds 120mb (slightly more than covtype dataset size)
@@ -464,7 +468,7 @@ class OpenMLDataset(OpenMLBase):
                          )
         return data_pickle_file, data_feather_file, feather_attribute_file
 
-    def _load_data(self):
+    def _load_data(self) -> Tuple[Union[pd.DataFrame, np.ndarray], list, list]:
         """ Load data from pickle or arff. Download data first if not present on disk. """
         if (self.cache_format == 'pickle' and self.data_pickle_file is None) or \
                 (self.cache_format == 'feather' and self.data_feather_file is None):
