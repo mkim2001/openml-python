@@ -13,7 +13,7 @@ jobs:
     - name: install dependencies
       run: |
         pip install -e .[examples,examples_unix]
-        pip install sphinx-gallery sphinx_bootstrap_theme
+        pip install sphinx-gallery sphinx_bootstrap_theme numpydoc
     - name: build docs
       run: |
         cd doc
