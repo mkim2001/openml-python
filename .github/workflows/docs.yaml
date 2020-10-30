@@ -1,0 +1,14 @@
+name: Doc Check
+on: [pull_request]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: install dependencies
+      run: |
+        pip install -e .[examples,examples_unix]
+    - uses: ammaraskar/sphinx-action@master
+      with:
+        docs-folder: "docs/"
