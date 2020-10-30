@@ -15,4 +15,4 @@ jobs:
         pip install -e .[examples,examples_unix]
     - uses: ammaraskar/sphinx-action@master
       with:
-        docs-folder: "docs/"
+        docs-folder: "doc/"
