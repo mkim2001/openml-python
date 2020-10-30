@@ -13,6 +13,7 @@ jobs:
     - name: install dependencies
       run: |
         pip install -e .[examples,examples_unix]
+        pip install sphinx-gallery sphinx_bootstrap_theme
     - uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "doc/"
