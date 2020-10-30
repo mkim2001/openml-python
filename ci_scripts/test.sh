@@ -24,7 +24,8 @@ run_tests() {
         PYTEST_ARGS=''
     fi
 
-    pytest -n 4 --durations=20 --timeout=600 --timeout-method=thread -sv $PYTEST_ARGS $test_dir
+    pytest -n 4 --durations=20 --timeout=600 --timeout-method=thread --random-order-bucket=global \
+        -sv $PYTEST_ARGS $test_dir
 }
 
 if [[ "$RUN_FLAKE8" == "true" ]]; then
